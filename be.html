@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Numbers</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            width: 300px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 0 10px gray;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 25px;
+            margin-top: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 450px;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    padding: 35px;
+
+    border-radius: 15px;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.subtitle {
+    text-align: center;
+    color: #777;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+
+    font-weight: bold;
+    color: #333;
+}
+
+input {
+    width: 100%;
+
+    padding: 12px;
+
+    border: 1px solid #ccc;
+    border-radius: 8px;
+
+    font-size: 16px;
+
+    outline: none;
+}
+
+input:focus {
+    border-color: #667eea;
+}
+
+button {
+    width: 100%;
+
+    padding: 13px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #667eea;
+    color: white;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+button:hover {
+    background: #5568d9;
+}
+
+.result {
+    margin-top: 25px;
+
+    padding: 15px;
+
+    border-radius: 8px;
+
+    text-align: center;
+
+    font-size: 18px;
+    font-weight: bold;
+
+    display: none;
+}
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Add Two Numbers</h2>
+
+    <input type="number" id="x" placeholder="Enter X">
+
+    <input type="number" id="y" placeholder="Enter Y">
+
+    <button onclick="addNumbers()">Add</button>
+
+    <div id="result"></div>
+
+      <div class="container">
+
+        <div class="card">
+
+            <h1>Voter Eligibility</h1>
+            <p class="subtitle">Check whether you are eligible to vote</p>
+
+            <form id="voterForm">
+
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <input
+                        type="number"
+                        id="age"
+                        placeholder="Enter your age"
+                        min="1"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="nationality">Nationality</label>
+                    <input
+                        type="text"
+                        id="nationality"
+                        placeholder="Enter nationality"
+                        required
+                    >
+                </div>
+
+                <button type="submit">
+                    Check Eligibility
+                </button>
+
+            </form>
+
+            <div id="resultTwo" class="result"></div>
+
+</div>
+
+<script>
+
+    function addNumbers() {
+
+        let x = document.getElementById("x").value;
+        let y = document.getElementById("y").value;
+
+        fetch(`http://localhost:8080/prc/add?x=${x}&y=${y}`)
+            .then(response => response.json())
+            .then(data => {
+
+                document.getElementById("result").innerText =
+                    "Result: " + data;
+
+            })
+            .catch(error => {
+
+                console.error(error);
+
+                document.getElementById("result").innerText =
+                    "Error connecting to server";
+
+            });
+    }
+
+    const voterForm = document.getElementById("voterForm");
+const result = document.getElementById("resultTwo");
+
+voterForm.addEventListener("submit", async function (event) {
+
+    event.preventDefault();
+
+    const age = document.getElementById("age").value;
+    const nationality = document.getElementById("nationality").value;
+
+    alert(`Age: ${age}, Nationality: ${nationality}`);
+    const voterData = {
+        age: Number(age),
+        nationality: nationality
+    };
+
+    result.style.display = "block";
+    result.innerHTML = "Checking...";
+
+    try {
+
+        const response = await fetch("http://localhost:8080/prc/voter", {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(voterData)
+        });
+
+        alert("Response status:", response);
+        if (!response.ok) {
+            throw new Error("HTTP Error: " + response.status);
+        }
+
+        // Your API returns a String
+        const data = await response.text();
+
+        result.innerHTML = data;
+
+    } catch (error) {
+
+        console.error(error);
+
+        result.innerHTML =
+            "Unable to connect to the server.";
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
